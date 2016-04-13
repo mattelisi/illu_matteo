@@ -6,8 +6,12 @@
 Screen('Preference', 'SkipSyncTests', 0);
 scr.colDept = 32; % color depth
 scr.allScreens = Screen('Screens');         % If there are multiple displays guess that one without the menu bar is the
-% scr.expScreen  = max(scr.allScreens);       % best choice.  Dislay 0 has the menu bar
-scr.expScreen = 1;
+if IsOSX || IsLinux
+    scr.expScreen  = max(scr.allScreens);       % best choice.  Dislay 0 has the menu bar
+end
+if IsWindows
+    scr.expScreen = 1; % config @ CENIR-ICM human MRI
+end
 Screen('Resolution', scr.expScreen, ScreenRes(1), ScreenRes(2)); % set resolution
 [scr.main,scr.rect] = Screen('OpenWindow',scr.expScreen, [0.5 0.5 0.5],[],scr.colDept,2,0,4); % open a window
 
