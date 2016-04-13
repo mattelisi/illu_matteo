@@ -1,4 +1,4 @@
-function [] = playControlStimulus(direction,save_patchs)
+function [] = playControlStimulus(direction,save_patches)
 %
 % play stimulus (illusion condition)
 %
@@ -16,8 +16,14 @@ if nargin<1
 end
 
 if nargin<2
-    save_patchs = 0;
+    save_patches = 0;
 end
+
+content = dir;
+if ~any(strcmp({content.name},'m_3D.mat'))
+    save_patches = 1;
+end
+
 
 %% load stimulation parameters
 setParameters;
@@ -37,7 +43,7 @@ end
 
 %% generate and store noise images
 
-switch save_patchs
+switch save_patches
     case 1
         
         noiseArray = generateNoiseVolume(stim,visual, scr.fd);
@@ -53,7 +59,7 @@ end
 nFrames = round(stim.period/scr.fd);
 motionTex = zeros(16, nFrames);
 
-switch save_patchs
+switch save_patches
     case 1
         m_3D = cell(16,1);
     case 0
@@ -63,7 +69,7 @@ end
 
 for ti = 1:16 % for each patch
     
-    switch save_patchs
+    switch save_patches
         case 1
             m = framesControl(stim, visual, noiseArray(:,:,:,ti), scr.fd);
             m_3D{ti} = uint8(m);
@@ -83,7 +89,7 @@ for ti = 1:16 % for each patch
 
 end
 
-switch save_patchs
+switch save_patches
     case 1
         save('m_3D','m_3D');
     case 0

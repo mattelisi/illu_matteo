@@ -1,4 +1,4 @@
-function [] = playStimulus(direction, local,save_patchs)
+function [] = playStimulus(direction, local,save_patches)
 %
 % play stimulus (illusion condition)
 %
@@ -13,8 +13,14 @@ if nargin < 2
 end
 
 if nargin<3
-    save_patchs = 0;
+    save_patches = 0;
 end
+
+content = dir;
+if ~any(strcmp({content.name},'m_2D.mat'))
+    save_patches = 1;
+end
+
 
 %% if direction is not set, pick one randomly
 if nargin<1
@@ -50,7 +56,7 @@ end
 
 %% generate and store noise images
 
-switch save_patchs
+switch save_patches
     case 1
         noiseArray = generateNoiseImage(stim,visual, scr.fd);
         for ti = 1:16 % for each of the 16 noise patches
@@ -64,7 +70,7 @@ end
 nFrames = round(stim.period/scr.fd);
 motionTex = zeros(16, nFrames);
 
-switch save_patchs
+switch save_patches
     case 1
         m_2D = cell(16,1);
     case 0
@@ -74,7 +80,7 @@ end
 
 for ti = 1:16 % for each patch
     
-    switch save_patchs
+    switch save_patches
         case 1
             m = framesIllusion(stim, visual, noiseArray(:,:,ti), scr.fd);
             m_2D{ti} = uint8(m);
@@ -94,7 +100,7 @@ for ti = 1:16 % for each patch
 
 end
 
-switch save_patchs
+switch save_patches
     case 1
         save('m_2D','m_2D');
     case 0

@@ -38,15 +38,17 @@ for i = 1:size(m_2D{patch},3)
     axis(ax(1),'equal')
     view(ax(1),2)
     colormap(ax(1),gray(255))
+    title(ax(1),'m_2D','interp','none')
     
     ax(2) = subplot(1,2,2);
     image(m_3D{patch}(:,:,i))
     axis(ax(2),'equal')
     view(ax(2),2)
     colormap(ax(2),gray(255))
+    title(ax(2),'m_3D','interp','none')
     
     drawnow
     
-    pause(0.050)
+%     pause(0.050)
     
 end
