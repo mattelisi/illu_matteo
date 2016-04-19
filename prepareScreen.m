@@ -14,6 +14,8 @@ if IsWindows
 end
 Screen('Resolution', scr.expScreen, ScreenRes(1), ScreenRes(2)); % set resolution
 [scr.main,scr.rect] = Screen('OpenWindow',scr.expScreen, [0.5 0.5 0.5],[],scr.colDept,2,0,4); % open a window
+% [scr.main,scr.rect] = Screen('OpenWindow',scr.expScreen, [0.5 0.5 0.5],[],scr.colDept,2,0,0); % open a window
+% Screen('BlendFunction', scr.main, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA'); % another to do anti-aliasing, but not with the "multisample"
 
 % get information about  screen
 [scr.xres, scr.yres]    = Screen('WindowSize', scr.main); % heigth and width of screen [pix]
