@@ -13,6 +13,7 @@ function playIllusion( path , condition )
 % or m_3D.mat that contains the stimulus (2D) noise patches or the control
 % (3D) noise patches.
 
+
 %% Check input arguments
 
 % Number of input arguments
@@ -62,28 +63,17 @@ if strcmp( path , '' )
     stim.pathLength = 0;
 end
 
-% Set angles for condition = 'stimulus'
-angles_expanding = [0, 0, 0, 0, 90, 90, 90, 90, 0, 0, 0, 0, 90, 90, 90, 90];
-angles_rotating = 180 + angles_expanding;
+Common.SetAngles;
 
-% Set angles for all other possibilites ( code is more simple with this
-% method)
-angles_other = angles_expanding*0;
 
 %% Start PTB window
 
 prepareScreen;
 
+
 %% Convert everything in pixels
 
-stim.sigma_px = round(visual.ppd * stim.sigma);
-stim.gridSize_px = round(visual.ppd * stim.gridSize);
-stim.textureSize_px = round(visual.ppd * stim.textureSize);
-stim.internalSpeed_px = round(visual.ppd * stim.internalSpeed);
-stim.externalSpeed_px = round(visual.ppd * stim.externalSpeed);
-if mod(stim.textureSize_px,2) == 0
-    stim.textureSize_px = stim.textureSize_px+1;
-end
+Common.ConvertInPix;
 
 
 %% Generate and store noise images, if needed
@@ -91,15 +81,6 @@ end
 if save_patches
     
     switch condition
-        
-        case ''
-            
-            noiseArray = generateNoiseImage(stim,visual, scr.fd);
-            for ti = 1:16 % for each of the 16 noise patches
-                noiseArray = cat(3, noiseArray, generateNoiseImage(stim,visual,scr.fd));
-            end
-            
-            m_2D = cell(16,1);
             
         case 'stimulus'
             
@@ -116,6 +97,7 @@ if save_patches
             for ti = 1:16
                 noiseArray = cat(4, noiseArray, generateNoiseVolume(stim,visual,scr.fd));
             end
+
             
             m_3D = cell(16,1);
             
@@ -149,20 +131,6 @@ for ti = 1:16 % for each patch
     if save_patches
         
         switch condition
-            
-            case ''
-                
-                m = framesIllusion(stim, visual, noiseArray(:,:,ti), scr.fd);
-                m_2D{ti} = uint8(m);
-                
-                for i=1:nFrames % for each frame
-                    
-                    m( : , : , : ) = 255;
-                    
-                    motionTex(ti,i)=Screen('MakeTexture', scr.main, m(:,:,i));
-                end
-                
-                save('m_2D','m_2D');
                 
             case 'stimulus'
                 
@@ -193,11 +161,8 @@ for ti = 1:16 % for each patch
         switch condition
             
             case ''
-                
+                m_2D{ti}( : , : , : ) = 255;
                 for i=1:nFrames % for each frame
-                    
-                    m_2D{ti}( : , : , : ) = 255;
-                    
                     motionTex(ti,i)=Screen('MakeTexture', scr.main, m_2D{ti}(:,:,i));
                 end
                 
@@ -222,9 +187,6 @@ if save_patches
     
     switch condition
         
-        case ''
-            save('m_2D','m_2D');
-            
         case 'stimulus'
             save('m_2D','m_2D');
             
@@ -269,19 +231,7 @@ end
 
 %% Set sequence index (motion start at trajectory midpoint)
 
-% Adjust the order of the sequence by selecting a different starting point
-% so that each noise patches initially appear at the middle point of its
-% trajectory
-seq = 1:nFrames;
-sqShift = round(nFrames/4);
-seq = circshift(seq, [0, -sqShift]);
-
-% Here, if required, the path shortening is added (if tarPos != 0 and
-% tarPos<nCycles) the cycle in which it will appear is given by tarPos
-% (should be 1) if tarPos is set to 0 the normal stimulus is presented
-% (whole trajectory)
-nFrameSkip = round(tarShort * (nFrames/2));
-seq_tar = [seq(1:(sqShift-ceil(nFrameSkip/2))), seq((sqShift+floor(nFrameSkip/2)):end)];
+Common.SetSequenceIndex;
 
 
 %% Internal motion angles values
@@ -341,14 +291,7 @@ end
 
 %% END
 
-Priority(0);
-ShowCursor;
-
-% Close all textures. Not strictly needed but avoid warnings
-Screen('Close');
-
-% Close window:
-Screen('CloseAll');
+END;
 
 
 end
