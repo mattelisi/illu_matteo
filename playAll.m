@@ -2,25 +2,14 @@ function playAll( schedule )
 %PLAYALL ( schedule )
 %
 % schedule = {...
-%     'inout' 'stimulus';...
-%     'inout' 'stimulus';...
-%     'inout' 'stimulus';...
-%     
-%     'inout' 'control';...
-%     'inout' 'control';...
-%     'inout' 'control';...
-%     
-%     'rotate' 'stimulus';...
-%     'rotate' 'stimulus';...
-%     'rotate' 'stimulus';...
-%     
-%     'rotate' 'control';...
-%     'rotate' 'control';...
-%     'rotate' 'control';...
-%     
-%     'global' 'control';...
-%     'global' 'control';...
-%     'global' 'control';...
+%     'Control_inOut' ;...
+%     'Control_rotation' ;...
+%     'Control_global' ;...
+%     'Illusion_InOut' ;...
+%     'Illusion_rotation' ;...
+%     'Control_local_inOut' ;...
+%     'Control_local_rot' ;...
+%     'NULL' ;...
 %     };
 %
 
@@ -29,18 +18,16 @@ function playAll( schedule )
 
 % Number of input arguments
 if nargin < 1
+    
     schedule = {...
-        
-        'inout' 'stimulus';...
-        
-        'inout' 'control';...
-        
-        'rotate' 'stimulus';...
-        
-        'rotate' 'control';...
-        
-        'global' 'control';...
-
+        'Control_inOut' ;...
+        'Control_rotation' ;...
+        'Control_global' ;...
+        'Illusion_InOut' ;...
+        'Illusion_rotation' ;...
+        'Control_local_inOut' ;...
+        'Control_local_rot' ;...
+        'NULL' ;...
         };
     
 else
@@ -48,33 +35,11 @@ else
     assert( ...
         iscell(schedule) && ...
         size(schedule,1) > 1 && ...
-        size(schedule,2) == 2 , ...
-        'schedule must be a cell n x 2 cell' )
+        size(schedule,2) == 1 , ...
+        'schedule must be a cell n x 1 cell' )
     
 end
 
-for s = 1:size(schedule,1)
-    
-    % Path
-    switch lower(schedule{s,1})
-        case ''
-        case 'inout'
-        case 'rotate'
-        case 'global'
-        otherwise
-            error('unknown path')
-    end
-    
-    % Condition
-    switch lower(schedule{s,2})
-        case ''
-        case 'stimulus'
-        case 'control'
-        otherwise
-            error('unknown condition')
-    end
-    
-end
 
 % Load the noise patches
 try
@@ -90,11 +55,6 @@ end
 %% Load stimulation parameters
 
 setParameters;
-
-% No path ?
-if strcmp( path , '' )
-    stim.pathLength = 0;
-end
 
 Common.SetAngles;
 
@@ -128,10 +88,12 @@ end
 
 %% Compute path coordinates
 
-rectAll_Illusion = coordIllusion(stim, visual, scr); % basic value
+rectAll_Illusion = coordIllusion(stim, visual, scr);
 rectAll_InOut = coordInOut(stim, visual, scr);
 rectAll_Rotation = coordRotation(stim, visual, scr);
 
+stim.pathLength = 0;
+rectAll_NoPath = coordIllusion(stim, visual, scr);
 
 %% Set sequence index (motion start at trajectory midpoint)
 
@@ -140,70 +102,129 @@ Common.SetSequenceIndex;
 
 %% Parse the schedule
 
-shuffleAll = Shuffle(repmat((1:16)',[1 3]));
+conditions_with_patches = 7;
+
+% shuffleAll = Shuffle(repmat((1:16)',[1 conditions_with_patches]));
+shuffleAll = repmat((1:16)',[1 conditions_with_patches]);
 
 for s = 1:size(schedule,1)
     
-    switch lower(schedule{s,1})
-        case 'inout'
-            switch lower(schedule{s,2})
-                case 'stimulus'
-                    schedule{s,3} = rectAll_Illusion;
-                    schedule{s,4} = angles_expanding;
-                    schedule{s,5} = motionTex2D(shuffleAll(:,1),:);
-                case 'control'
-                    schedule{s,3} = rectAll_InOut;
-                    schedule{s,4} = angles_other;
-                    schedule{s,5} = motionTex3D(shuffleAll(:,1),:);
-            end
-        case 'rotate'
-            switch lower(schedule{s,2})
-                case 'stimulus'
-                    schedule{s,3} = rectAll_Illusion;
-                    schedule{s,4} = angles_rotating;
-                    schedule{s,5} = motionTex2D(shuffleAll(:,2),:);
-                case 'control'
-                    schedule{s,3} = rectAll_Rotation;
-                    schedule{s,4} = angles_other;
-                    schedule{s,5} = motionTex3D(shuffleAll(:,2),:);
-            end
-        case 'global'
-            switch lower(schedule{s,2})
-                case 'control'
-                    schedule{s,3} = rectAll_Illusion;
-                    schedule{s,4} = angles_other;
-                    schedule{s,5} = motionTex3D(shuffleAll(:,3),:);
-            end
+    switch schedule{s}
+        
+        case 'Control_inOut'            
+            schedule{s,2} = rectAll_InOut;
+            schedule{s,3} = angles_other;
+            schedule{s,4} = motionTex3D(shuffleAll(:,1),:);
+            
+        case 'Control_rotation'
+            schedule{s,2} = rectAll_Rotation;
+            schedule{s,3} = angles_other;
+            schedule{s,4} = motionTex3D(shuffleAll(:,2),:);
+            
+        case 'Control_global'
+            schedule{s,2} = rectAll_Illusion;
+            schedule{s,3} = angles_other;
+            schedule{s,4} = motionTex3D(shuffleAll(:,3),:);
+            
+        case 'Illusion_InOut'
+            schedule{s,2} = rectAll_Illusion;
+            schedule{s,3} = angles_expanding;
+            schedule{s,4} = motionTex2D(shuffleAll(:,4),:);
+            
+        case 'Illusion_rotation'
+            schedule{s,2} = rectAll_Illusion;
+            schedule{s,3} = angles_rotating;
+            schedule{s,4} = motionTex2D(shuffleAll(:,5),:);
+            
+        case 'Control_local_inOut'
+            schedule{s,2} = rectAll_NoPath;
+            schedule{s,3} = angles_rotating;
+            schedule{s,4} = motionTex2D(shuffleAll(:,5),:);
+            
+        case 'Control_local_rot'
+            schedule{s,2} = rectAll_NoPath;
+            schedule{s,3} = angles_expanding;
+            schedule{s,4} = motionTex2D(shuffleAll(:,5),:);
+            
+        case 'NULL'
+            schedule{s,2} = [];
+            schedule{s,3} = [];
+            schedule{s,4} = [];
+
+        otherwise
+            error( 'stim unrecognised : %s' , schedule{s} )
+
     end
+    
+    
+    %     switch lower(schedule{s,1})
+    %         case 'inout'
+    %             switch lower(schedule{s,2})
+    %                 case 'stimulus'
+    %                     schedule{s,3} = rectAll_Illusion;
+    %                     schedule{s,4} = angles_expanding;
+    %                     schedule{s,5} = motionTex2D(shuffleAll(:,1),:);
+    %                 case 'control'
+    %                     schedule{s,3} = rectAll_InOut;
+    %                     schedule{s,4} = angles_other;
+    %                     schedule{s,5} = motionTex3D(shuffleAll(:,1),:);
+    %             end
+    %         case 'rotate'
+    %             switch lower(schedule{s,2})
+    %                 case 'stimulus'
+    %                     schedule{s,3} = rectAll_Illusion;
+    %                     schedule{s,4} = angles_rotating;
+    %                     schedule{s,5} = motionTex2D(shuffleAll(:,2),:);
+    %                 case 'control'
+    %                     schedule{s,3} = rectAll_Rotation;
+    %                     schedule{s,4} = angles_other;
+    %                     schedule{s,5} = motionTex3D(shuffleAll(:,2),:);
+    %             end
+    %         case 'global'
+    %             switch lower(schedule{s,2})
+    %                 case 'control'
+    %                     schedule{s,3} = rectAll_Illusion;
+    %                     schedule{s,4} = angles_other;
+    %                     schedule{s,5} = motionTex3D(shuffleAll(:,3),:);
+    %             end
+    %     end
+    
+    
 end
 
 
 %% Display stimulus
 
+showStim = 1;
 
-for s = 1:size(schedule,1)
-    for cycle = 1:nCycles
-        if cycle == tarPos % this determine whether there is path shortening
-            as = seq_tar;
-        else
-            as = seq;
-        end
-        for i = as
-            Screen('DrawTextures', scr.main, schedule{s,5}(:,i), [], squeeze(schedule{s,3}(:,:,i)), schedule{s,4});
-            drawFixation(visual.fgColor,[scr.centerX, scr.centerY],scr,visual)
-            Screen('Flip', scr.main);
-            [keyIsDown] = KbCheck(-1);
-            if keyIsDown
-                
-                END;
-                
-                return
-
+while showStim
+    
+    for s = 1:size(schedule,1)
+        for cycle = 1:nCycles
+            if cycle == tarPos % this determine whether there is path shortening
+                as = seq_tar;
+            else
+                as = seq;
+            end
+            for i = as
+                if ~strcmp(schedule{s,1},'NULL')
+                    Screen('DrawTextures', scr.main, schedule{s,4}(:,i), [], squeeze(schedule{s,2}(:,:,i)), schedule{s,3});
+                end
+                drawFixation(visual.fgColor,[scr.centerX, scr.centerY],scr,visual)
+                DrawFormattedText(scr.main, schedule{s,1})
+                Screen('Flip', scr.main);
+                [keyIsDown] = KbCheck(-1);
+                if keyIsDown
+                    
+                    showStim = 0;
+                    
+                    break
+                    
+                end
             end
         end
     end
 end
-
 
 %% END
 

@@ -35,7 +35,7 @@ nCycles = 5; % number of motion cycles
 ScreenRes = [1024, 768];
 
 %% target
-tarPos = 4;     % motion cycle at which the target is presented
+tarPos = 0;     % motion cycle at which the target is presented
                 % set it to 0 to have the normal stimulus with no path shortening
                 
 tarShort = 1; % proportion of path skipped

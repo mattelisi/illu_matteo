@@ -29,6 +29,7 @@ switch lower(path)
     otherwise
         error('unknown path')
 end
+path = lower(path);
 
 % Get directory content
 content = dir;
@@ -52,7 +53,7 @@ switch lower(condition)
     otherwise
         error('unknown condition')
 end
-
+condition = lower(condition);
 
 %% Load stimulation parameters
 
@@ -82,6 +83,8 @@ if save_patches
     
     switch condition
             
+        
+        
         case 'stimulus'
             
             noiseArray = generateNoiseImage(stim,visual, scr.fd);
@@ -131,6 +134,7 @@ for ti = 1:16 % for each patch
     if save_patches
         
         switch condition
+            
                 
             case 'stimulus'
                 
