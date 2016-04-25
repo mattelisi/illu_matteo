@@ -10,4 +10,4 @@ seq = circshift(seq, [0, -sqShift]);
 % (should be 1) if tarPos is set to 0 the normal stimulus is presented
 % (whole trajectory)
 nFrameSkip = round(tarShort * (nFrames/2));
-seq_tar = [seq(1:(sqShift-ceil(nFrameSkip/2))), seq((sqShift+floor(nFrameSkip/2)):end)];
+seq_tar = [seq(1:(sqShift-ceil(nFrameSkip/2))), seq((sqShift+floor(nFrameSkip/2)+1):end)];
