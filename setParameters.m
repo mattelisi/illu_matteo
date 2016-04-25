@@ -38,6 +38,6 @@ ScreenRes = [1024, 768];
 tarPos = 0;     % motion cycle at which the target is presented
                 % set it to 0 to have the normal stimulus with no path shortening
                 
-tarShort = 1; % proportion of path skipped
+tarShort = 1.05; % proportion of path skipped
                 % (when = 1, skip half of the whole path).
 
